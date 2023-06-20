@@ -5,11 +5,11 @@ use figment::{
 use serde::Deserialize;
 use std::path::PathBuf;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Config {
-    pub repo_dir: PathBuf,
     pub port: u16,
     pub address: Option<String>,
+    pub repo_dir: Option<PathBuf>,
     pub index_interval_secs: Option<u64>,
 }
 

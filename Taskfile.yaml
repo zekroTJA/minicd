@@ -1,0 +1,30 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - task: run
+
+  run:
+    cmds:
+      - cargo run
+
+  test-commit:
+    aliases: [tc]
+    dir: data/local/t1
+    cmds:
+      - echo test >> testfile
+      - git add .
+      - git commit -m "test commit"
+      - git push origin master
+  
+  dev-env:
+    cmds:
+      - rm -rf data
+      - mkdir -p data/local
+      - mkdir -p data/repos/t1
+      - git -C data/repos/t1 init --bare
+      - git -C data/local clone ../repos/t1
+      - cp .minicd.example data/local/t1/.minicd

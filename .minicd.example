@@ -1,0 +1,9 @@
+notify:
+  - on: [finish]
+    to:
+      - https://example.com
+      - hello@example.com
+
+shell: /bin/bash
+run: |
+  echo "hello world"

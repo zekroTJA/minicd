@@ -9,7 +9,7 @@ use walkdir::WalkDir;
 
 const HOOK_MARKER: &str = "# minicd::apicall\n";
 
-pub fn index_repos(dir: impl AsRef<Path>, port: u16) -> Result<(), Box<dyn Error>> {
+pub fn index(dir: impl AsRef<Path>, port: u16) -> Result<(), Box<dyn Error>> {
     for entry in WalkDir::new(dir) {
         let entry = entry?;
         if entry.file_name() == "HEAD" {
