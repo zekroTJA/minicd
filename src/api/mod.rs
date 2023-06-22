@@ -2,20 +2,21 @@ pub mod error;
 mod util;
 
 use self::error::ResponseError;
-use crate::{config::Config, runner};
+use crate::{config::Config, runner, secrets::SecretManager};
 use error::Result;
-use std::convert::Infallible;
+use std::{convert::Infallible, sync::Arc};
 use util::str_to_ip;
 use warp::{
     hyper::{body::Bytes, StatusCode},
     Filter, Rejection, Reply,
 };
 
-pub async fn run(cfg: &Config) -> Result<()> {
+pub async fn run(cfg: &Config, secrets: Arc<SecretManager>) -> Result<()> {
     let postreceive = warp::path("postreceive")
         .and(warp::post())
         .and(warp::body::bytes())
         .and(with_cfg(cfg.clone()))
+        .and(with_secrets(secrets.clone()))
         .and_then(handle_postreceive);
 
     let hello = warp::path("test").and(warp::get()).and_then(handle_test);
@@ -34,6 +35,12 @@ pub async fn run(cfg: &Config) -> Result<()> {
 
 fn with_cfg(cfg: Config) -> impl Filter<Extract = (Config,), Error = Infallible> + Clone {
     warp::any().map(move || cfg.clone())
+}
+
+fn with_secrets(
+    secrets: Arc<SecretManager>,
+) -> impl Filter<Extract = (Arc<SecretManager>,), Error = Infallible> + Clone {
+    warp::any().map(move || secrets.clone())
 }
 
 // See: https://github.com/seanmonstar/warp/blob/master/examples/rejections.rs
@@ -67,7 +74,11 @@ async fn handle_error(err: Rejection) -> Result<impl Reply, Infallible> {
 
 // See: https://github.com/seanmonstar/warp/blob/master/examples/todos.rs
 
-async fn handle_postreceive(body: Bytes, cfg: Config) -> Result<impl Reply, Rejection> {
+async fn handle_postreceive(
+    body: Bytes,
+    cfg: Config,
+    secrets: Arc<SecretManager>,
+) -> Result<impl Reply, Rejection> {
     let body = std::str::from_utf8(&body).map_err(ResponseError::InvalidBodyFormat)?;
 
     let mut args = body.split(' ').filter(|v| !v.is_empty());
@@ -78,7 +89,7 @@ async fn handle_postreceive(body: Bytes, cfg: Config) -> Result<impl Reply, Reje
         .next()
         .ok_or(ResponseError::MissingBodyArgs("reference parameter"))?;
 
-    runner::run(remote_repo, reference)
+    runner::run(remote_repo, reference, secrets)
         .await
         .map_err(ResponseError::RunFailed)?;
 

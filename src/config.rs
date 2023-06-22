@@ -11,6 +11,16 @@ pub struct Config {
     pub address: Option<String>,
     pub repo_dir: Option<PathBuf>,
     pub index_interval_secs: Option<u64>,
+    pub secrets_file: Option<String>,
+    pub email: Option<EmailConfig>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct EmailConfig {
+    pub smtp_server: String,
+    pub username: String,
+    pub password: String,
+    pub from_address: String,
 }
 
 impl Config {

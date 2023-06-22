@@ -1,6 +1,7 @@
-use run_script::ScriptError;
-
 use crate::git;
+use reqwest::header::{InvalidHeaderName, InvalidHeaderValue};
+use run_script::ScriptError;
+use warp::http::method::InvalidMethod;
 
 pub type Result<T, E = Error> = core::result::Result<T, E>;
 
@@ -26,6 +27,18 @@ pub enum Error {
 
     #[error("script failed with non-zero exit code {exit_code}: {std_err}")]
     ScriptNonZeroExitCode { exit_code: i32, std_err: String },
+
+    #[error("notification webhook invalid method: {0}")]
+    WebhookInvlidMethod(#[from] InvalidMethod),
+
+    #[error("notification webhook invalid header name: {0}")]
+    WebhookInvlidHeaderName(#[from] InvalidHeaderName),
+
+    #[error("notification webhook invalid header value: {0}")]
+    WebhookInvlidHeaderValue(#[from] InvalidHeaderValue),
+
+    #[error("notification webhook request failed: {0}")]
+    WebhookError(#[from] reqwest::Error),
 }
 
 impl From<(i32, String)> for Error {

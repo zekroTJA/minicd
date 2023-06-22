@@ -1,8 +1,11 @@
 notify:
   - on: [finish]
     to:
-      - https://example.com
-      - hello@example.com
+      - type: webhook
+        url: https://discord.com/api/webhooks/1121175739077759128/{{ discord.token }}
+        method: POST
+      - type: email
+        address: hello@example.com
 
 shell: /bin/bash
 run: |

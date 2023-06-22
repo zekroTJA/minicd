@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -11,7 +13,7 @@ pub struct Definition {
 
 #[derive(Deserialize)]
 pub struct Notify {
-    pub to: Vec<String>,
+    pub to: Vec<NotifyTarget>,
     pub on: Option<Vec<Event>>,
 }
 
@@ -38,6 +40,19 @@ pub enum Event {
 pub enum ValueOrList<T> {
     Value(T),
     List(Vec<T>),
+}
+
+#[derive(Deserialize)]
+#[serde(tag = "type")]
+pub enum NotifyTarget {
+    #[serde(rename = "email")]
+    EMail { address: String },
+    #[serde(rename = "webhook")]
+    WebHook {
+        url: String,
+        method: Option<String>,
+        headers: Option<HashMap<String, String>>,
+    },
 }
 
 impl Definition {

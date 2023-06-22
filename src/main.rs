@@ -2,6 +2,7 @@ mod api;
 mod config;
 mod definition;
 mod git;
+mod mailing;
 mod repos;
 mod runner;
 mod secrets;
@@ -10,6 +11,8 @@ use config::Config;
 use env_logger::Env;
 use log::{debug, error};
 use std::{error::Error, time::Duration};
+
+use crate::{mailing::MailSender, secrets::SecretManager};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -20,6 +23,29 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let cfg = Config::parse()?;
 
     debug!("config: {:#?}", &cfg);
+
+    let secrets = cfg
+        .secrets_file
+        .as_ref()
+        .map(SecretManager::new)
+        .unwrap_or_else(|| Ok(SecretManager::empty()))?;
+
+    let mailer = cfg
+        .email
+        .as_ref()
+        .map(|mc| {
+            MailSender::new(
+                &mc.smtp_server,
+                &mc.username,
+                &mc.password,
+                &mc.from_address,
+            )
+        })
+        .transpose()?;
+
+    if let Some(mailer) = mailer {
+        // mailer.send()?;
+    }
 
     if let Some(repo_dir) = cfg.repo_dir.clone() {
         let mut interval =
@@ -36,7 +62,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         });
     }
 
-    api::run(&cfg).await?;
+    api::run(&cfg, secrets.into()).await?;
 
     Ok(())
 }
