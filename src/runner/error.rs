@@ -1,4 +1,4 @@
-use crate::git;
+use crate::{git, mailing};
 use reqwest::header::{InvalidHeaderName, InvalidHeaderValue};
 use run_script::ScriptError;
 use warp::http::method::InvalidMethod;
@@ -39,6 +39,9 @@ pub enum Error {
 
     #[error("notification webhook request failed: {0}")]
     WebhookError(#[from] reqwest::Error),
+
+    #[error("notification mail send failed: {0}")]
+    MailError(#[from] mailing::error::Error),
 }
 
 impl From<(i32, String)> for Error {

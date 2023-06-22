@@ -12,7 +12,7 @@ use env_logger::Env;
 use log::{debug, error};
 use std::{error::Error, time::Duration};
 
-use crate::{mailing::MailSender, secrets::SecretManager};
+use crate::{mailing::MailSender, runner::Runner, secrets::SecretManager};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -43,9 +43,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         })
         .transpose()?;
 
-    if let Some(mailer) = mailer {
-        // mailer.send()?;
-    }
+    let runner = Runner::new(secrets, mailer);
 
     if let Some(repo_dir) = cfg.repo_dir.clone() {
         let mut interval =
@@ -62,7 +60,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         });
     }
 
-    api::run(&cfg, secrets.into()).await?;
+    api::run(&cfg, runner).await?;
 
     Ok(())
 }

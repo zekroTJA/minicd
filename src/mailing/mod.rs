@@ -2,12 +2,12 @@ pub mod error;
 
 use self::error::{Error, Result};
 use lettre::{
-    message::Mailbox, transport::smtp::authentication::Credentials, Message, SmtpTransport,
-    Transport,
+    transport::smtp::authentication::Credentials, AsyncSmtpTransport, AsyncTransport, Message,
+    Tokio1Executor,
 };
 
 pub struct MailSender {
-    mailer: SmtpTransport,
+    mailer: AsyncSmtpTransport<Tokio1Executor>,
     from_address: String,
 }
 
@@ -20,7 +20,7 @@ impl MailSender {
     ) -> Result<Self> {
         let creds = Credentials::new(username.into(), password.into());
 
-        let mailer = SmtpTransport::relay(smtp_server)
+        let mailer = AsyncSmtpTransport::<Tokio1Executor>::relay(smtp_server)
             .map_err(Error::Transport)?
             .credentials(creds)
             .build();
@@ -31,7 +31,7 @@ impl MailSender {
         })
     }
 
-    pub fn send<S: Into<String>>(&self, to: &str, subject: S, body: S) -> Result<()> {
+    pub async fn send<S: Into<String>>(&self, to: &str, subject: S, body: S) -> Result<()> {
         let msg = Message::builder()
             .from(format!("minicd <{}>", self.from_address).parse()?)
             .to(to.parse()?)
@@ -39,7 +39,7 @@ impl MailSender {
             .body(body.into())
             .map_err(Error::InvalidMessage)?;
 
-        self.mailer.send(&msg).map_err(Error::SendFailed)?;
+        self.mailer.send(msg).await.map_err(Error::SendFailed)?;
 
         Ok(())
     }

@@ -2,21 +2,21 @@ pub mod error;
 mod util;
 
 use self::error::ResponseError;
-use crate::{config::Config, runner, secrets::SecretManager};
+use crate::{config::Config, runner::Runner};
 use error::Result;
-use std::{convert::Infallible, sync::Arc};
+use std::convert::Infallible;
 use util::str_to_ip;
 use warp::{
     hyper::{body::Bytes, StatusCode},
     Filter, Rejection, Reply,
 };
 
-pub async fn run(cfg: &Config, secrets: Arc<SecretManager>) -> Result<()> {
+pub async fn run(cfg: &Config, runner: Runner) -> Result<()> {
     let postreceive = warp::path("postreceive")
         .and(warp::post())
         .and(warp::body::bytes())
         .and(with_cfg(cfg.clone()))
-        .and(with_secrets(secrets.clone()))
+        .and(with_runner(runner.clone()))
         .and_then(handle_postreceive);
 
     let hello = warp::path("test").and(warp::get()).and_then(handle_test);
@@ -37,10 +37,8 @@ fn with_cfg(cfg: Config) -> impl Filter<Extract = (Config,), Error = Infallible>
     warp::any().map(move || cfg.clone())
 }
 
-fn with_secrets(
-    secrets: Arc<SecretManager>,
-) -> impl Filter<Extract = (Arc<SecretManager>,), Error = Infallible> + Clone {
-    warp::any().map(move || secrets.clone())
+fn with_runner(runner: Runner) -> impl Filter<Extract = (Runner,), Error = Infallible> + Clone {
+    warp::any().map(move || runner.clone())
 }
 
 // See: https://github.com/seanmonstar/warp/blob/master/examples/rejections.rs
@@ -77,7 +75,7 @@ async fn handle_error(err: Rejection) -> Result<impl Reply, Infallible> {
 async fn handle_postreceive(
     body: Bytes,
     cfg: Config,
-    secrets: Arc<SecretManager>,
+    runner: Runner,
 ) -> Result<impl Reply, Rejection> {
     let body = std::str::from_utf8(&body).map_err(ResponseError::InvalidBodyFormat)?;
 
@@ -89,7 +87,8 @@ async fn handle_postreceive(
         .next()
         .ok_or(ResponseError::MissingBodyArgs("reference parameter"))?;
 
-    runner::run(remote_repo, reference, secrets)
+    runner
+        .run(remote_repo, reference)
         .await
         .map_err(ResponseError::RunFailed)?;
 
