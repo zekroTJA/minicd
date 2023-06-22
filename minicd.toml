@@ -1,3 +1,0 @@
-repo_dir = "data/repos"
-port = 8080
-index_interval_secs = 100000000
