@@ -1,6 +1,6 @@
 # https://taskfile.dev
 
-version: '3'
+version: "3"
 
 tasks:
   default:
@@ -19,7 +19,14 @@ tasks:
       - git add .
       - git commit -m "test commit"
       - git push origin master
-  
+
+  test-tag:
+    aliases: [tt]
+    dir: data/local/t1
+    cmds:
+      - git tag $(date +%s)
+      - git push --tags
+
   dev-env:
     cmds:
       - rm -rf data

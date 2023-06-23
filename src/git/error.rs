@@ -1,6 +1,7 @@
 use std::{
     io,
     process::{ExitStatus, Output},
+    string::FromUtf8Error,
 };
 
 pub type Result<T, E = Error> = core::result::Result<T, E>;
@@ -12,6 +13,9 @@ pub enum Error {
 
     #[error("Command failed ({code}): {message}")]
     CommandStatus { code: ExitStatus, message: String },
+
+    #[error("failed encoding output to UTF8: {0}")]
+    OutputEncode(#[from] FromUtf8Error),
 }
 
 impl From<Output> for Error {

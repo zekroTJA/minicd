@@ -1,12 +1,18 @@
-notify:
-  - on: [finish]
-    to:
-      - type: webhook
-        url: https://discord.com/api/webhooks/1121175739077759128/{{ discord.token }}
-        method: POST
-      - type: email
-        address: hello@example.com
+# yaml-language-server: $schema=../../../docs/schemas/.minicd.schema.json
 
-shell: /bin/bash
-run: |
-  echo "hello world"
+name: "Test Repo"
+
+jobs:
+  test:
+    on:
+      tag: ".*"
+    notify:
+      - on: [finish]
+        to:
+          - type: webhook
+            url: https://example.com
+          - type: email
+            address: "{{notifications.email}}"
+    shell: /bin/bash
+    run: |
+      echo "hello world"

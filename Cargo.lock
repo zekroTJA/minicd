@@ -866,6 +866,7 @@ dependencies = [
  "futures",
  "lettre",
  "log",
+ "regex",
  "reqwest",
  "run_script",
  "serde",

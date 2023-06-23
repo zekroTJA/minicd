@@ -11,6 +11,7 @@ figment = { version = "0.10.10", features = ["yaml", "toml", "env"] }
 futures = "0.3.28"
 lettre = { version = "0.10.4", default-features = false, features = ["smtp-transport", "builder", "rustls-tls", "tokio1-rustls-tls", "sendmail-transport"] }
 log = "0.4.19"
+regex = "1.8.4"
 reqwest = { version = "0.11.18", default-features = false, features = ["tokio-rustls", "rustls-tls"] }
 run_script = "0.10.1"
 serde = { version = "1.0.164", features = ["derive"] }

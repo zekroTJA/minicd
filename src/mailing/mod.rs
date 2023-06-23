@@ -12,11 +12,11 @@ pub struct MailSender {
 }
 
 impl MailSender {
-    pub fn new<S: Into<String>>(
+    pub fn new(
         smtp_server: &str,
-        username: S,
-        password: S,
-        from_address: S,
+        username: impl Into<String>,
+        password: impl Into<String>,
+        from_address: impl Into<String>,
     ) -> Result<Self> {
         let creds = Credentials::new(username.into(), password.into());
 
@@ -31,11 +31,16 @@ impl MailSender {
         })
     }
 
-    pub async fn send<S: Into<String>>(&self, to: &str, subject: S, body: S) -> Result<()> {
+    pub async fn send(
+        &self,
+        to: &str,
+        subject: impl Into<String>,
+        body: impl Into<String>,
+    ) -> Result<()> {
         let msg = Message::builder()
             .from(format!("minicd <{}>", self.from_address).parse()?)
             .to(to.parse()?)
-            .subject("Test Email")
+            .subject(subject.into())
             .body(body.into())
             .map_err(Error::InvalidMessage)?;
 

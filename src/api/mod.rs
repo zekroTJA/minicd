@@ -74,7 +74,7 @@ async fn handle_error(err: Rejection) -> Result<impl Reply, Infallible> {
 
 async fn handle_postreceive(
     body: Bytes,
-    cfg: Config,
+    _cfg: Config,
     runner: Runner,
 ) -> Result<impl Reply, Rejection> {
     let body = std::str::from_utf8(&body).map_err(ResponseError::InvalidBodyFormat)?;
@@ -86,9 +86,12 @@ async fn handle_postreceive(
     let reference = args
         .next()
         .ok_or(ResponseError::MissingBodyArgs("reference parameter"))?;
+    let reference_name = args
+        .next()
+        .ok_or(ResponseError::MissingBodyArgs("reference name parameter"))?;
 
     runner
-        .run(remote_repo, reference)
+        .run(remote_repo, reference, reference_name)
         .await
         .map_err(ResponseError::RunFailed)?;
 

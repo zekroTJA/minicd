@@ -1,0 +1,127 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["name", "jobs"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the project or repository."
+    },
+    "jobs": {
+      "type": "object",
+      "description": "Jobs that should be executed on the project.",
+      "patternProperties": {
+        "^[_a-zA-Z][a-zA-Z0-9_-]*$": {
+          "type": "object",
+          "description": "The job definition.",
+          "required": ["run"],
+          "properties": {
+            "on": {
+              "type": "object",
+              "description": "Restrict when a job shall be executed.",
+              "maxProperties": 1,
+              "minProperties": 1,
+              "properties": {
+                "branch": {
+                  "type": "string",
+                  "description": "Only run the job when a branch ref was pushed matching the given regular expression."
+                },
+                "tag": {
+                  "type": "string",
+                  "description": "Only run the job when a tag ref was pushed matching the given regular expression."
+                }
+              }
+            },
+            "notify": {
+              "type": "array",
+              "description": "Define who and how people should be notified when a job event occurs.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "on": {
+                    "type": "array",
+                    "description": "A list of events on which the notification shall be sent.",
+                    "items": {
+                      "type": "string",
+                      "enum": ["success", "failure", "finish", "start", "all"],
+                      "minItems": 1
+                    }
+                  },
+                  "to": {
+                    "type": "array",
+                    "description": "A list of targets to which the notification shall be sent.",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": ["email"]
+                            },
+                            "address": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": ["webhook"]
+                            },
+                            "url": {
+                              "type": "string"
+                            },
+                            "method": {
+                              "type": "string"
+                            },
+                            "headers": {
+                              "type": "object",
+                              "patternProperties": {
+                                "^[A-Za-z_-]+$": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "shell": {
+              "description": "The shell that should be used to run the script. You can either specify the shell or the shell with additional arguments.",
+              "examples": ["/bin/bash", ["/bin/bash", "-l"]],
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "await": {
+              "type": "boolean",
+              "description": "When set to true, the push process will pause until the job has been executed. Otherwise, jobs will be executed asynchronous."
+            },
+            "run": {
+              "type": "string",
+              "description": "The script to execute. Each line executes as a seperate command. If a command returns a non-zero exit code, the script will terminate and the job will be marked as 'failed'.",
+              "examples": [
+                "cargo test\ndocker build . -t mycoolapp\ndocker push mycoolapp"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

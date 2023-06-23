@@ -1,4 +1,4 @@
-use crate::{git, mailing};
+use crate::{definition::RefParseError, git, mailing};
 use reqwest::header::{InvalidHeaderName, InvalidHeaderValue};
 use run_script::ScriptError;
 use warp::http::method::InvalidMethod;
@@ -42,6 +42,9 @@ pub enum Error {
 
     #[error("notification mail send failed: {0}")]
     MailError(#[from] mailing::error::Error),
+
+    #[error(transparent)]
+    InvalidReferenceName(#[from] RefParseError),
 }
 
 impl From<(i32, String)> for Error {
