@@ -50,6 +50,10 @@ download /usr/local/bin/minicd \
 
 chmod +x /usr/local/bin/minicd
 
+mkdir -p /etc/minicd
+download /etc/minicd/config.toml \
+    "https://raw.githubusercontent.com/zekroTJA/minicd/main/minicd.example.toml"
+
 download /etc/systemd/system/minicd.service \
     "https://raw.githubusercontent.com/zekroTJA/minicd/main/contrib/systemd/minicd.service"
 
