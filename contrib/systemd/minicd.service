@@ -1,0 +1,14 @@
+[Unit]
+Description=minicd service
+After=network.target auditd.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/minicd
+WorkingDirectory=/var/run/minicd
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+Alias=minicd.service
