@@ -7,12 +7,11 @@ mod repos;
 mod runner;
 mod secrets;
 
+use crate::{mailing::MailSender, runner::Runner, secrets::SecretManager};
 use config::Config;
 use env_logger::Env;
 use log::{debug, error};
 use std::{error::Error, time::Duration};
-
-use crate::{mailing::MailSender, runner::Runner, secrets::SecretManager};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {

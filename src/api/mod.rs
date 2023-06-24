@@ -15,13 +15,10 @@ pub async fn run(cfg: &Config, runner: Runner) -> Result<()> {
     let postreceive = warp::path("postreceive")
         .and(warp::post())
         .and(warp::body::bytes())
-        .and(with_cfg(cfg.clone()))
         .and(with_runner(runner.clone()))
         .and_then(handle_postreceive);
 
-    let hello = warp::path("test").and(warp::get()).and_then(handle_test);
-
-    let api = warp::path("api").and(postreceive.or(hello).recover(handle_error));
+    let api = warp::path("api").and(postreceive.recover(handle_error));
 
     warp::serve(api)
         .run((
@@ -31,10 +28,6 @@ pub async fn run(cfg: &Config, runner: Runner) -> Result<()> {
         .await;
 
     Ok(())
-}
-
-fn with_cfg(cfg: Config) -> impl Filter<Extract = (Config,), Error = Infallible> + Clone {
-    warp::any().map(move || cfg.clone())
 }
 
 fn with_runner(runner: Runner) -> impl Filter<Extract = (Runner,), Error = Infallible> + Clone {
@@ -54,7 +47,7 @@ async fn handle_error(err: Rejection) -> Result<impl Reply, Infallible> {
     if let Some(err) = err.find::<ResponseError>() {
         #[allow(clippy::single_match)]
         match err {
-            ResponseError::MissingBodyArgs(_) => {
+            ResponseError::MissingBodyArgs(_) | ResponseError::InvalidBodyFormat(_) => {
                 return Ok(warp::reply::with_status(
                     err.to_string(),
                     StatusCode::BAD_REQUEST,
@@ -72,11 +65,7 @@ async fn handle_error(err: Rejection) -> Result<impl Reply, Infallible> {
 
 // See: https://github.com/seanmonstar/warp/blob/master/examples/todos.rs
 
-async fn handle_postreceive(
-    body: Bytes,
-    _cfg: Config,
-    runner: Runner,
-) -> Result<impl Reply, Rejection> {
+async fn handle_postreceive(body: Bytes, runner: Runner) -> Result<impl Reply, Rejection> {
     let body = std::str::from_utf8(&body).map_err(ResponseError::InvalidBodyFormat)?;
 
     let mut args = body.split(' ').filter(|v| !v.is_empty());
@@ -96,8 +85,4 @@ async fn handle_postreceive(
         .map_err(ResponseError::RunFailed)?;
 
     Ok(StatusCode::OK)
-}
-
-async fn handle_test() -> Result<&'static str, Infallible> {
-    Ok("hello")
 }
