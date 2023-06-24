@@ -1,0 +1,23 @@
+# The HTTP port of the API.
+port = 8080
+# The directory where your repositories are on your server.
+# These repos will automatically get injected the post_receive
+# hook to trigger jobs in minicd.
+# If not specified, no repos will be injected automatically.
+repo_dir = "/home/git/repos"
+# The interval (in seconds) in which repositories in the repo_dir 
+# will be scanned for new repositories.
+index_interval_secs = 30
+# A file containing secret values which will be injected into jobs.
+secrets_file = "/root/secrets.yaml"
+
+# Mail configuration for e-mail notifications.
+[email]
+# The SMTP server address.
+smtp_server = "smtps.example.com"
+# SMTP username.
+username = "example"
+# SMTP password.
+password = "3x4mpl3"
+# The e-mail addres from which notification e-mails will be sent.
+from_address = "minicd@example.com"
