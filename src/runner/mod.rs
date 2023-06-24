@@ -189,7 +189,15 @@ impl Runner {
         let mut options = ScriptOptions::new();
         options.working_directory = Some(dir);
 
-        options.env_vars = Some(self.0.secrets.to_flat_map());
+        let env_vars = self
+            .0
+            .secrets
+            .to_flat_map()
+            .iter()
+            .map(|(k, v)| (to_env_key(k), v.clone()))
+            .collect();
+
+        options.env_vars = Some(env_vars);
 
         if let Some(shell) = &job.shell {
             match shell {
@@ -252,4 +260,8 @@ impl JobState {
             Self::Failure => "Job failed",
         }
     }
+}
+
+fn to_env_key(key: &str) -> String {
+    format!("SECRETS_{}", key.to_uppercase().replace('.', "_"))
 }
