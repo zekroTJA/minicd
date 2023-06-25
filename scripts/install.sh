@@ -45,6 +45,9 @@ esac
 
 set -x
 
+mkdir -p /etc/minicd
+mkdir -p /var/minicd
+
 download /usr/local/bin/minicd \
     "https://github.com/zekroTJA/minicd/releases/download/$version/minicd-$version-$arch-unknown-linux-musl"
 
@@ -54,15 +57,11 @@ download /etc/minicd/config.toml \
 download /etc/systemd/system/minicd.service \
     "https://raw.githubusercontent.com/zekroTJA/minicd/main/contrib/systemd/minicd.service"
 
-set -e
-
 chmod +x /usr/local/bin/minicd
 
-mkdir -p /etc/minicd
-mkdir -p /var/minicd
+set -e
 
 systemctl daemon-reload
-systemctl enable minicd.service
 systemctl start minicd.service
 systemctl status minicd.service
 
