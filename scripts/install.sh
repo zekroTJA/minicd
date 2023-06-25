@@ -43,15 +43,10 @@ esac
         | jq -r '.[0].tag_name')
 }
 
-set -ex
+set -x
 
 download /usr/local/bin/minicd \
     "https://github.com/zekroTJA/minicd/releases/download/$version/minicd-$version-$arch-unknown-linux-musl"
-
-chmod +x /usr/local/bin/minicd
-
-mkdir -p /etc/minicd
-mkdir -p /var/minicd
 
 download /etc/minicd/config.toml \
     "https://raw.githubusercontent.com/zekroTJA/minicd/main/minicd.example.toml"
@@ -59,12 +54,19 @@ download /etc/minicd/config.toml \
 download /etc/systemd/system/minicd.service \
     "https://raw.githubusercontent.com/zekroTJA/minicd/main/contrib/systemd/minicd.service"
 
+set -e
+
+chmod +x /usr/local/bin/minicd
+
+mkdir -p /etc/minicd
+mkdir -p /var/minicd
+
 systemctl daemon-reload
 systemctl enable minicd.service
 systemctl start minicd.service
 systemctl status minicd.service
 
-set +x
+set +ex
 
 cat <<EOF
 ----------------------------------------------------------------
