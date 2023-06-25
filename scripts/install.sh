@@ -43,7 +43,7 @@ esac
         | jq -r '.[0].tag_name')
 }
 
-set -x
+set -ex
 
 download /usr/local/bin/minicd \
     "https://github.com/zekroTJA/minicd/releases/download/$version/minicd-$version-$arch-unknown-linux-musl"
@@ -51,6 +51,8 @@ download /usr/local/bin/minicd \
 chmod +x /usr/local/bin/minicd
 
 mkdir -p /etc/minicd
+mkdir -p /var/minicd
+
 download /etc/minicd/config.toml \
     "https://raw.githubusercontent.com/zekroTJA/minicd/main/minicd.example.toml"
 
@@ -61,3 +63,18 @@ systemctl daemon-reload
 systemctl enable minicd.service
 systemctl start minicd.service
 systemctl status minicd.service
+
+set +x
+
+cat <<EOF
+----------------------------------------------------------------
+
+MiniCD service has been successfully installed and started.
+
+A default config has been created. Feel free to open it and
+configure it to your needs.
+$ sudo vim /etc/minicd/config.toml
+
+After that, restart the service.
+$ sudo systemctl restart minicd.service
+EOF

@@ -5,7 +5,7 @@ After=network.target auditd.service
 [Service]
 Type=simple
 ExecStart=/usr/local/bin/minicd
-WorkingDirectory=/var/run/minicd
+WorkingDirectory=/var/minicd
 KillMode=process
 Restart=on-failure
 
