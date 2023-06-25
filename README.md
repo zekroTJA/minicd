@@ -15,8 +15,14 @@ a great practice to do so.
 
 You can get the latest binaries from the [releases page](https://github.com/zekrotja/minicd/releases).
 Alternatively, you can compile it by yourself using cargo install.
-```
+```bash
 cargo install --git https://github.com/zekrotja/minicd
+```
+
+You can also use the following install script. It downloads the latest binary for your system as well
+a default configuration. It sets up a systemd service to keep it up and running.
+```bash
+curl -sL https://raw.githubusercontent.com/zekroTJA/minicd/main/scripts/install.sh | sudo bash -
 ```
 
 ### Configuration
