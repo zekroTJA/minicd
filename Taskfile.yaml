@@ -8,6 +8,8 @@ tasks:
       - task: run
 
   run:
+    env:
+      RUST_LOG: debug
     cmds:
       - cargo run
 

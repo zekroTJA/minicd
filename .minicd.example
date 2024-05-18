@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../../../docs/schemas/.minicd.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/zekroTJA/minicd/main/docs/schemas/.minicd.schema.json
 
 name: "Test Repo"
 

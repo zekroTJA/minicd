@@ -1,4 +1,4 @@
-use std::{error::Error, fs::File, io::Write, os::unix::prelude::PermissionsExt, path::Path};
+use std::{error::Error, fs::File, io::Write, path::Path};
 use walkdir::WalkDir;
 
 const HOOK_FILE_VERSION: u8 = 1;
@@ -27,6 +27,7 @@ pub fn index(dir: impl AsRef<Path>, port: u16) -> Result<(), Box<dyn Error>> {
             let mut pr_hook_file = File::create(pr_hook_dir)?;
             #[cfg(unix)]
             {
+                use std::os::unix::prelude::PermissionsExt;
                 let mut perms = pr_hook_file.metadata()?.permissions();
                 perms.set_mode(perms.mode() | 0o100);
                 pr_hook_file.set_permissions(perms)?;

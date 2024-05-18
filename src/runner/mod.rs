@@ -8,6 +8,7 @@ use crate::{
 };
 use error::{Error, Result};
 use log::debug;
+use reqwest::header::HeaderMap;
 use run_script::ScriptOptions;
 use std::{path::PathBuf, sync::Arc};
 use temp_dir::TempDir;
@@ -147,7 +148,7 @@ impl Runner {
                 NotifyTarget::EMail { address } => {
                     let Some(mailer) = &self.0.mailer else {
                         log::warn!("mail notification: mailer has not been configured");
-                        return Ok(())
+                        return Ok(());
                     };
 
                     let address = self.0.secrets.replace(address);
@@ -156,29 +157,25 @@ impl Runner {
                     mailer.send(&address, subject, body).await?;
                 }
                 NotifyTarget::WebHook {
-                    url: _,
-                    method: _,
-                    headers: _,
+                    url,
+                    method,
+                    headers,
                 } => {
-                    log::error!("webhook notifications are not implemented yet!")
-                    // let url = self.0.secrets.replace(url);
-                    // let method = method.clone().unwrap_or_else(|| "GET".into()).parse()?;
+                    let url = self.0.secrets.replace(url);
+                    let method = method.clone().unwrap_or_else(|| "GET".into()).parse()?;
 
-                    // let mut header_map = HeaderMap::new();
-                    // if let Some(headers) = headers {
-                    //     for (k, v) in headers {
-                    //         let v = self.0.secrets.replace(v);
-                    //         header_map.insert(HeaderName::from_str(k)?, HeaderValue::from_str(&v)?);
-                    //     }
-                    // }
+                    let mut header_map = HeaderMap::new();
+                    if let Some(headers) = headers {
+                        header_map = headers.try_into().map_err(Error::WebhookInvlidHeaderMap)?;
+                    }
 
-                    // debug!("Sending notification request ...");
-                    // reqwest::Client::default()
-                    //     .request(method, url)
-                    //     .headers(header_map)
-                    //     .send()
-                    //     .await?
-                    //     .error_for_status()?;
+                    debug!("Sending notification request ...");
+                    reqwest::Client::default()
+                        .request(method, url)
+                        .headers(header_map)
+                        .send()
+                        .await?
+                        .error_for_status()?;
                 }
             }
         }

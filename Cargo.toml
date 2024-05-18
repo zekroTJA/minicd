@@ -6,13 +6,21 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-env_logger = "0.10.0"
+env_logger = "0.11.3"
 figment = { version = "0.10.10", features = ["yaml", "toml", "env"] }
 futures = "0.3.28"
-lettre = { version = "0.10.4", default-features = false, features = ["smtp-transport", "builder", "rustls-tls", "tokio1-rustls-tls", "sendmail-transport"] }
+http = "1.1.0"
+lettre = { version = "0.11.7", default-features = false, features = [
+    "smtp-transport",
+    "builder",
+    "tokio1-rustls-tls",
+    "sendmail-transport",
+] }
 log = "0.4.19"
 regex = "1.8.4"
-reqwest = { version = "0.11.18", default-features = false, features = ["tokio-rustls", "rustls-tls"] }
+reqwest = { version = "0.12.4", default-features = false, features = [
+    "rustls-tls",
+] }
 run_script = "0.10.1"
 serde = { version = "1.0.164", features = ["derive"] }
 serde_yaml = "0.9.21"
@@ -20,4 +28,4 @@ temp-dir = "0.1.11"
 thiserror = "1.0.40"
 tokio = { version = "1.28.2", features = ["full"] }
 walkdir = "2.3.3"
-warp = "0.3.5"
+warp = "0.3.7"

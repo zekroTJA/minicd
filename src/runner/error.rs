@@ -1,7 +1,6 @@
 use crate::{definition::RefParseError, git, mailing};
-use reqwest::header::{InvalidHeaderName, InvalidHeaderValue};
+use http::method::InvalidMethod;
 use run_script::ScriptError;
-use warp::http::method::InvalidMethod;
 
 pub type Result<T, E = Error> = core::result::Result<T, E>;
 
@@ -31,17 +30,14 @@ pub enum Error {
     #[error("notification webhook invalid method: {0}")]
     WebhookInvlidMethod(#[from] InvalidMethod),
 
-    #[error("notification webhook invalid header name: {0}")]
-    WebhookInvlidHeaderName(#[from] InvalidHeaderName),
-
-    #[error("notification webhook invalid header value: {0}")]
-    WebhookInvlidHeaderValue(#[from] InvalidHeaderValue),
+    #[error("notification webhook invalid header map: {0}")]
+    WebhookInvlidHeaderMap(http::Error),
 
     #[error("notification webhook request failed: {0}")]
-    WebhookError(#[from] reqwest::Error),
+    WebhookFailed(#[from] reqwest::Error),
 
     #[error("notification mail send failed: {0}")]
-    MailError(#[from] mailing::error::Error),
+    MailFailed(#[from] mailing::error::Error),
 
     #[error(transparent)]
     InvalidReferenceName(#[from] RefParseError),
